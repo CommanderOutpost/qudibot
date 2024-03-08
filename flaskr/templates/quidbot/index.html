@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}QuidBot{% endblock %}
+
+{% block header %}
+<div class="">
+    <h1 class="h1 display-4">Hi {{g.user['username']}},</h1>
+</div>
+{% endblock %}
+
+
+{% block content %}
+
+{% endblock %}
+
+<form method="post">
+    <label for="username">Username</label>
+    <input name="username" id="username" required />
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" required />
+    <input type="submit" value="Register" />
+</form>

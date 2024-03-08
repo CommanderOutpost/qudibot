@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="container">
+    <h1 class="h1 display-3">{% block title %}Log In{% endblock %}</h1>
+</div>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+    <form method="post">
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input name="username" type="text" class="form-control" id="username" placeholder="mastertrader123"
+                required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-control"
+                aria-describedby="passwordHelpBlock" required>
+            <br>
+        </div>
+        <div>
+            <input type="submit" class="btn btn-primary btn-lg" value="Log In">
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+<form method="post">
+    <label for="username">Username</label>
+    <input name="username" id="username" required />
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" required />
+    <input type="submit" value="Register" />
+</form>
