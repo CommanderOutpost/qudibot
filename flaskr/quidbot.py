@@ -4,7 +4,8 @@ from werkzeug.exceptions import abort
 from flaskr.auth import login_required
 from flaskr.db import get_db
 
-from flaskr.stock_market import get_stock_data, show_stock_graph
+from flaskr.stock_market import get_stock_data
+from flask import jsonify
 
 bp = Blueprint("home", __name__)
 
@@ -23,13 +24,22 @@ def index():
         return render_template("quidbot/landingPage.html", posts=posts)
 
 
-@bp.route("/stock_graph", methods=["GET", "POST"])
+@bp.route("/view_stock", methods=["GET", "POST"])
 def stock_graph():
     if request.method == "POST":
         stock = request.form["stock"]
         period = request.form["period"]
         interval = request.form["interval"]
         df = get_stock_data(stock, period, interval)
-        show_stock_graph(df, stock)
         return redirect(url_for("home.index"))
     return render_template("quidbot/stock_graph.html")
+
+
+@bp.route("/get_stock_data")
+def get_stock_data_route():
+    stock = request.args.get("stock")
+    period = request.args.get("period")
+    interval = request.args.get("interval")
+    df = get_stock_data(stock, period, interval)
+    data = df.reset_index().to_dict("list")
+    return jsonify(data)

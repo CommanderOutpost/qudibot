@@ -1,14 +1,39 @@
 {% extends 'base.html' %}
 
+{% block script %}
+<script src="https://cdn.plot.ly/plotly-2.29.1.min.js" charset="utf-8" defer></script>
+<script src="{{ url_for('static', filename='stockGraph.js') }}" defer></script>
+
+{% endblock %}
+
+
 {% block content %}
-<h2>Stock Graph</h2>
-<form method="post">
-    <label for="stock">Stock Ticker:</label>
-    <input type="text" id="stock" name="stock" required>
-    <label for="period">Period:</label>
-    <input type="text" id="period" name="period" required>
-    <label for="interval">Interval:</label>
-    <input type="text" id="interval" name="interval" required>
-    <input type="submit" value="Get Stock Data">
-</form>
+<div class="container">
+    <br><br>
+    <h2 class="h1 display-5">Pick a Stock to View</h2>
+</div>
+<div class="container">
+    <form id="stock-form" method="post">
+        <div class="mb-3">
+            <label for="stock" class="form-label">Stock Ticker:</label>
+            <input name="stock" type="text" class="form-control" id="stock" placeholder="AAPL" required>
+        </div>
+        <div class="mb-3">
+            <label for="period" class="form-label">Time Period:</label>
+            <input type="text" id="period" name="period" class="form-control" required>
+            <br>
+        </div>
+        <div class="mb-3">
+            <label for="interval" class="form-label">Time interval:</label>
+            <input type="text" id="interval" name="interval" class="form-control" required>
+            <br>
+        </div>
+        <div>
+            <input type="submit" class="btn btn-primary btn-lg" value="Get Stock Data">
+        </div>
+    </form>
+</div>
+
+<div id="stock-graph"></div>
+
 {% endblock %}
