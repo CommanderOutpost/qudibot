@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Stock Graph</h2>
+<form method="post">
+    <label for="stock">Stock Ticker:</label>
+    <input type="text" id="stock" name="stock" required>
+    <label for="period">Period:</label>
+    <input type="text" id="period" name="period" required>
+    <label for="interval">Interval:</label>
+    <input type="text" id="interval" name="interval" required>
+    <input type="submit" value="Get Stock Data">
+</form>
+{% endblock %}
