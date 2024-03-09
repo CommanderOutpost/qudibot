@@ -1,24 +1,50 @@
-{% extends 'base.html' %}
-
-{% block title %}QuidBot{% endblock %}
-
-{% block header %}
+{% extends 'base.html' %} {% block title %}QuidBot{% endblock %} {% block header
+%}
 <div class="">
-    <h1 class="h1 display-4">Hi {{g.user['username']}},</h1>
+  <h1 class="h1 display-4">Hi {{g.user['username']}},</h1>
+</div>
+{% endblock %} {% block content %}
+<div class="row home-row">
+  <div class="col-lg mb-3 mb-sm-0">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Start Trading</h5>
+        <p class="card-text">
+          With supporting text below as a natural lead-in to additional content.
+        </p>
+        <a href="#" class="btn btn-primary">Go</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Predict Stock Movement</h5>
+        <p class="card-text">
+          With supporting text below as a natural lead-in to additional content.
+        </p>
+        <a href="{{ url_for('home.prediction')}}" class="btn btn-primary">Go</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">View Stocks</h5>
+        <p class="card-text">
+          With supporting text below as a natural lead-in to additional content.
+        </p>
+        <a href="{{ url_for('home.stock_graph')}}" class="btn btn-primary">Go</a>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
-
-{% block content %}
-
-
-
-{% endblock %}
-
 <form method="post">
-    <label for="username">Username</label>
-    <input name="username" id="username" required />
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" required />
-    <input type="submit" value="Register" />
+  <label for="username">Username</label>
+  <input name="username" id="username" required />
+  <label for="password">Password</label>
+  <input type="password" name="password" id="password" required />
+  <input type="submit" value="Register" />
 </form>

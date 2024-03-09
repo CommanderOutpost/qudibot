@@ -7,6 +7,10 @@ from flaskr.db import get_db
 from flaskr.stock_market import get_stock_data
 from flask import jsonify
 
+from flaskr.gather_all_data import gather_data
+
+from flaskr.chat_ai import predict_up_or_down_openai, predict_up_or_down_claude
+
 bp = Blueprint("home", __name__)
 
 
@@ -33,6 +37,23 @@ def stock_graph():
         df = get_stock_data(stock, period, interval)
         return redirect(url_for("home.index"))
     return render_template("quidbot/stock_graph.html")
+
+
+@bp.route("/predictions", methods=["GET", "POST"])
+def prediction():
+    if request.method == "POST":
+        stocks = request.form["stocks"]
+        stocks = stocks.split(",")
+        for i, stock in enumerate(stocks):
+            stocks[i] = stock[:-1]
+        print(stocks)
+        openai_api_key = "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"
+        all_data = gather_data(stocks)
+        prediction = predict_up_or_down_claude(stocks, all_data)
+        # Turn json to dictionary
+        prediction = eval(prediction)
+        return jsonify({"predictions": prediction})
+    return render_template("quidbot/prediction.html")
 
 
 @bp.route("/get_stock_data")
