@@ -20,12 +20,14 @@
         </div>
         <div class="mb-3">
             <label for="period" class="form-label">Time Period:</label>
-            <input type="text" id="period" name="period" class="form-control" required>
-            <br>
-        </div>
-        <div class="mb-3">
-            <label for="interval" class="form-label">Time interval:</label>
-            <input type="text" id="interval" name="interval" class="form-control" required>
+            <select class="form-select" id="period" aria-label="Default select example">
+                <option selected>Select a time period</option>
+                <option value="1mo">1 month</option>
+                <option value="3mo">3 months</option>
+                <option value="6mo">6 months</option>
+                <option value="1y">1 year</option>
+                <option value="2y">2 years</option>
+            </select>
             <br>
         </div>
         <div>
@@ -33,8 +35,8 @@
             <a href="{{ url_for('home.index')}}" class="btn btn-secondary btn-lg float-end">Go Back</a>
         </div>
     </form>
-</div>
 
-<div id="stock-graph"></div>
+    <div id="stock-graph"></div>
+</div>
 
 {% endblock %}

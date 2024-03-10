@@ -10,10 +10,13 @@ import yfinance as yf
 import plotly.graph_objs as go
 
 
-def get_stock_data(stock, period, interval):
-    yf.pdr_override()
-    # Import the data frame (df) from yahoo finance using the specified stock as the ticker symbol
-    df = yf.download(tickers=stock, period="1d", interval="60m")
+def get_stock_data(stock, period="1d", interval="60m"):
+    try:
+        yf.pdr_override()
+        # Import the data frame (df) from yahoo finance using the specified stock as the ticker symbol
+        df = yf.download(tickers=stock, period=period, interval=interval)
 
-    # print the data we have requested
-    return df
+        return df
+    except OverflowError as e:
+        print("Error:", e)
+        return None

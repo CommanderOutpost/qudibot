@@ -9,7 +9,7 @@ from flask import jsonify
 
 from flaskr.gather_all_data import gather_data
 
-from flaskr.chat_ai import predict_up_or_down_openai, predict_up_or_down_claude
+from flaskr.chat_ai import predict_up_or_down_openai, predict_up_or_down_claude, predict_up_or_down_groq
 
 bp = Blueprint("home", __name__)
 
@@ -49,18 +49,26 @@ def prediction():
         print(stocks)
         openai_api_key = "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"
         all_data = gather_data(stocks)
-        prediction = predict_up_or_down_claude(stocks, all_data)
+        # prediction = predict_up_or_down_claude(stocks, all_data)
+        prediction = predict_up_or_down_openai(stocks, all_data)
+        # prediction = predict_up_or_down_groq(stocks, all_data)
         # Turn json to dictionary
         prediction = eval(prediction)
+        print(prediction)
         return jsonify({"predictions": prediction})
     return render_template("quidbot/prediction.html")
 
 
 @bp.route("/get_stock_data")
 def get_stock_data_route():
-    stock = request.args.get("stock")
-    period = request.args.get("period")
-    interval = request.args.get("interval")
-    df = get_stock_data(stock, period, interval)
-    data = df.reset_index().to_dict("list")
-    return jsonify(data)
+    try:
+        stock = request.args.get("stock")
+        period = request.args.get("period")
+        interval = request.args.get("interval")
+        df = get_stock_data(stock, period, interval)
+        data = df.reset_index().to_dict("list")
+        return jsonify(data)
+    except Exception as e:
+        print("Error getting stock data")
+        flash("Error getting stock data")
+        return jsonify({"error": str(e)})

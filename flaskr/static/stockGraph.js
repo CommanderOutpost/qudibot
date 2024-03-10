@@ -1,6 +1,20 @@
-function createStockGraph(data) {
+function createStockGraph(data, stock) {
+    const dateTimeList = data.Date;
+    // Convert the datetime of type datetime to the correct format string yyyy-mm-dd
+    for (let i = 0; i < dateTimeList.length; i++) {
+        const date = new Date(dateTimeList[i]);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const formattedTime = `${year}-${month}-${day}`;
+        dateTimeList[i] = formattedTime;
+    }
+
+    console.log(dateTimeList)
+    
+
     const trace = {
-        x: data.Datetime,
+        x: data.Date,
         open: data.Open,
         high: data.High,
         low: data.Low,
@@ -12,12 +26,14 @@ function createStockGraph(data) {
         decreasing: { line: { color: '#7F7F7F' } }
     };
 
+    console.log(trace)
+
     const layout = {
         title: `${stock} Live Share Price`,
         xaxis: {
             type: 'date',
             title: 'Date',
-            range: [data.Datetime[0], data.Datetime[data.Datetime.length - 1]],
+            range: [data.Date[0], data.Date[data.Date.length - 1]],
             rangeselector: {
                 buttons: [
                     { count: 1, label: '1D', step: 'day', stepmode: 'backward' },
@@ -39,11 +55,15 @@ stockForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const stock = document.getElementById('stock').value;
     const period = document.getElementById('period').value;
-    const interval = document.getElementById('interval').value;
+    const interval = '1d';
+
+    console.log(stock, period, interval)
 
     const response = await fetch(`/get_stock_data?stock=${stock}&period=${period}&interval=${interval}`);
     const data = await response.json();
 
-    createStockGraph(data);
+    console.log(data)
+
+    createStockGraph(data, stock);
 
 });

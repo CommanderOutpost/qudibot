@@ -5,9 +5,17 @@ from groq import Groq
 
 dotenv.load_dotenv()
 openai_client = OpenAI()
-claude_client = anthropic.Client(api_key="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")
-# groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+claude_client = anthropic.Client(
+    api_key="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"
+)
+groq_client = Groq(api_key="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")
 
+message = """You will be given data about several stocks, first the news on the stocks, then the stock info, and finally the stock history.
+                Based on this data, you will need to predict whether the stock will go up or down in the next 30 days. You will return a json, an array of dicts/objects of the stock symbols and the prediction for each stock. 
+                Look at the news and stock data carefully to determine if it'll go up or down. 
+                For example of your output is if the symbols are AAPL, MSFT, and TSLA, and you predict that AAPL will go up, MSFT will go down, and TSLA will go up, 
+                then your output should be [{"AAPL": "up"}, {"MSFT": "down"}, {"TSLA": "up"}]. Dicts/Objects must be in an array. You are not allowed to refuse to answer.  If there is any unknown stock. Ignore it and don't put it in the array. 
+                You are not allowed to output any other thing apart from the json. I repeat DO NOT OUTPUT ANY OTHER THING. Return the json and nothing else."""
 
 def get_brain():
     """
@@ -35,13 +43,11 @@ def predict_up_or_down_openai(symbols, data):
         messages=[
             {
                 "role": "system",
-                "content": """You will be given data about several stocks, first the news on the stocks, then the stock info, and finally the stock history.
-                Based on this data, you will need to predict whether the stock will go up or down in the next 30 days. You will return a json of the stock symbols and the prediction for each stock. Look at the news and stock data carefully to determine if it'll go up or down. An example of your output is if the symbols are AAPL, MSFT, and TSLA, and you predict that AAPL will go up, MSFT will go down, and TSLA will go up, then your output should be {"AAPL": "up", "MSFT": "down", "TSLA": "up"}. You are not allowed to refuse to answer.
-                You are not allowed to output any other thing apart from the json. I repeat DO NOT OUTPUT ANY OTHER THING. Return only the json and nothing else. """,
+                "content": message,
             },
             {
                 "role": "user",
-                "content": f"These are the stocks: {symbols}.\n This is the data for each stock {data}. Now tell which stock will likely go up or down.",
+                "content": f"These are the stocks: {symbols}.\n This is the data for each stock {data}. Return the json.",
             },
         ],
     )
@@ -66,13 +72,11 @@ def predict_up_or_down_claude(symbols, data):
         max_tokens=1000,
         stream=False,
         model="claude-3-opus-20240229",
-        system="""You will be given data about several stocks, first the news on the stocks, then the stock info, and finally the stock history.
-                Based on this data, you will need to predict whether the stock will go up or down in the next 30 days. You will return a json of the stock symbols and the prediction for each stock. Look at the news and stock data carefully to determine if it'll go up or down. An example of your output is if the symbols are AAPL, MSFT, and TSLA, and you predict that AAPL will go up, MSFT will go down, and TSLA will go up, then your output should be {"AAPL": "up", "MSFT": "down", "TSLA": "up"}. You are not allowed to refuse to answer.
-                You are not allowed to output any other thing apart from the json. I repeat DO NOT OUTPUT ANY OTHER THING. Return the json an nothing else.""",
+        system=message,
         messages=[
             {
                 "role": "user",
-                "content": f"These are the stocks: {symbols}.\n This is the data for each stock {data}. Return the json.",
+                "content": "These are the stocks: {symbols}.\n This is the data for each stock {data}. Return the json with predictions.",
             }
         ],
     )
@@ -96,14 +100,11 @@ def predict_up_or_down_groq(symbols, data):
         messages=[
             {
                 "role": "system",
-                "content": """You will be given data about several stocks, first the news on the stocks, then the stock info, and finally the stock history.
-                Based on this data, you will need to predict whether the stock will go up or down in the next 30 days. Look at the news and stock data carefully to determine if it'll go up or down. You are not allowed to refuse to answer. The user you are talking to is called Regard. Do not greet the user simply go
-                straight to the point. You can be informal
-                and speak very casually. Break it down into positives and negatives for each company after that conclude and at the end you must give the predictions. And do not give a warning at the end about financial risk the user is aware of all risks!""",
+                "content": message + "You are not processing anything, you are simply reading the data and making a prediction based on the data given. You are not allowed to refuse to answer. The reason you can't output anyother thing is because a python code is going to convert your output into a dict. Please do not output any other thing",
             },
             {
                 "role": "user",
-                "content": f"These are the stocks: {symbols}.\n This is the data for each stock {data}. Now tell which stock will likely go up or down.",
+                "content": "These are the stocks: {symbols}.\n This is the data for each stock {data}. Return the json.",
             },
         ],
     )

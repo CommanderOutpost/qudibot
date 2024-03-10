@@ -1,9 +1,9 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 
-{% block script %} 
-    <script src="{{ url_for('static', filename='selectStocks.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='getPredictions.js') }}" defer></script>
-{% endblock %} 
+{% block script %}
+<script src="{{ url_for('static', filename='selectStocks.js') }}" defer></script>
+<script src="{{ url_for('static', filename='getPredictions.js') }}" defer></script>
+{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -11,27 +11,57 @@
     <h2 class="h1 display-5">Pick Stocks</h2>
 </div>
 <div class="container">
-    <div class="container">
-        <div class="form-group">
-            <label for="symbolInput" class="form-label">Add Symbol:</label>
-            <br>
-            <div class="mb-3">
-                <input type="text" class="form-control-lg" id="symbolInput" placeholder="Enter stock symbol" />
-                <div class="input-group-append">
+    <div class="form-group">
+        <label for="symbolInput" class="form-label">Add Symbol:</label>
+        <br>
+        <div class="mb-3">
+            <input type="text" class="form-control-lg" id="symbolInput" placeholder="Enter stock symbol" />
+            <div class="input-group-append">
 
-                </div>
             </div>
-        </div><br>
-        <div class="symbol-list"></div>
-        <div>
-            <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">
-                Get Predictions
-            </button>
-            <a href="{{ url_for('home.index')}}" class="btn btn-secondary btn-lg float-end">Go Back</a>
         </div>
+    </div><br>
+    <div class="symbol-list"></div>
+    <div>
+        <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">
+            Get Predictions
+        </button>
+        <a href="{{ url_for('home.index')}}" class="btn btn-secondary btn-lg float-end">Go Back</a>
     </div>
 </div>
 
-<div id="stock-graph"></div>
+<div id="container">
+    <div class="container text-center prediction-container">
+        <!-- <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div> -->
+        <!-- <div class="row">
+            <div class="col">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">NVDA</h5>
+                        <i class="fas fa-arrow-up fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">AAPL</h5>
+                        <i class="fas fa-arrow-down fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">AAPL</h5>
+                        <i class="fas fa-arrow-down fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+    </div>
+</div>
 
 {% endblock %}
