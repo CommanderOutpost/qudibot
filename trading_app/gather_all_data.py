@@ -1,5 +1,5 @@
-from flaskr import utils
-from flaskr.stock_data import get_news_data, get_stock_data
+from trading_app import utils
+from trading_app.stock_data import get_news_data, get_stock_data
 import logging
 
 # Set up logging

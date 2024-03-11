@@ -1,14 +1,8 @@
-from openai import OpenAI
-import os, dotenv
+from openai import OpenAI, OpenAIError
 import anthropic
 from groq import Groq
 
-dotenv.load_dotenv()
-openai_client = OpenAI()
-claude_client = anthropic.Client(
-    api_key="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"
-)
-groq_client = Groq(api_key="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")
+# groq_client = Groq(api_key="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")
 
 message = """You will be given data about several stocks, first the news on the stocks, then the stock info, and finally the stock history.
                 Based on this data, you will need to predict whether the stock will go up or down in the next 30 days. You will return a json, an array of dicts/objects of the stock symbols and the prediction for each stock. 
@@ -16,6 +10,7 @@ message = """You will be given data about several stocks, first the news on the 
                 For example of your output is if the symbols are AAPL, MSFT, and TSLA, and you predict that AAPL will go up, MSFT will go down, and TSLA will go up, 
                 then your output should be [{"AAPL": "up"}, {"MSFT": "down"}, {"TSLA": "up"}]. Dicts/Objects must be in an array. You are not allowed to refuse to answer.  If there is any unknown stock. Ignore it and don't put it in the array. 
                 You are not allowed to output any other thing apart from the json. I repeat DO NOT OUTPUT ANY OTHER THING. Return the json and nothing else."""
+
 
 def get_brain():
     """
@@ -27,7 +22,7 @@ def get_brain():
     return os.getenv("BRAIN")
 
 
-def predict_up_or_down_openai(symbols, data):
+def predict_up_or_down_openai(symbols, data, api):
     """
     Predicts whether the given stocks will go up or down in the next 30 days based on the provided data.
 
@@ -38,26 +33,31 @@ def predict_up_or_down_openai(symbols, data):
     Returns:
         str: Prediction for each stock.
     """
-    response = openai_client.chat.completions.create(
-        model="gpt-4-0125-preview",
-        messages=[
-            {
-                "role": "system",
-                "content": message,
-            },
-            {
-                "role": "user",
-                "content": f"These are the stocks: {symbols}.\n This is the data for each stock {data}. Return the json.",
-            },
-        ],
-    )
+    try:
+        
+        openai_client = OpenAI(api_key=api)
 
-    # Extract the generated content from the API response
-    generated_content = response.choices[0].message.content
-    return generated_content
+        response = openai_client.chat.completions.create(
+            model="gpt-4-0125-preview",
+            messages=[
+                {
+                    "role": "system",
+                    "content": message,
+                },
+                {
+                    "role": "user",
+                    "content": f"These are the stocks: {symbols}.\n This is the data for each stock {data}. Return the json.",
+                },
+            ],
+        )
 
+        # Extract the generated content from the API response
+        generated_content = response.choices[0].message.content
+        return generated_content
+    except OpenAIError as e:
+        return None
 
-def predict_up_or_down_claude(symbols, data):
+def predict_up_or_down_claude(symbols, data, api):
     """
     Predicts whether a stock will go up or down in the next 30 days based on given data.
 
@@ -68,6 +68,7 @@ def predict_up_or_down_claude(symbols, data):
     Returns:
         str: Prediction of whether the stock will go up or down.
     """
+    claude_client = anthropic.Client(api_key=api)
     response = claude_client.messages.create(
         max_tokens=1000,
         stream=False,
@@ -76,7 +77,7 @@ def predict_up_or_down_claude(symbols, data):
         messages=[
             {
                 "role": "user",
-                "content": "These are the stocks: {symbols}.\n This is the data for each stock {data}. Return the json with predictions.",
+                "content": f"These are the stocks: {symbols}.\n This is the data for each stock {data}. Return the json.",
             }
         ],
     )
@@ -100,7 +101,8 @@ def predict_up_or_down_groq(symbols, data):
         messages=[
             {
                 "role": "system",
-                "content": message + "You are not processing anything, you are simply reading the data and making a prediction based on the data given. You are not allowed to refuse to answer. The reason you can't output anyother thing is because a python code is going to convert your output into a dict. Please do not output any other thing",
+                "content": message
+                + "You are not processing anything, you are simply reading the data and making a prediction based on the data given. You are not allowed to refuse to answer. The reason you can't output anyother thing is because a python code is going to convert your output into a dict. Please do not output any other thing",
             },
             {
                 "role": "user",

@@ -1,0 +1,25 @@
+DROP TABLE IF EXISTS user;
+
+DROP TABLE IF EXISTS post;
+
+CREATE TABLE user (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL
+);
+
+CREATE TABLE api_key (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brain TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
+    api TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user (id)
+);
+
+CREATE TABLE prediction (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    stock TEXT NOT NULL,
+    prediction TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user (id)
+);

@@ -42,6 +42,14 @@ async function getPredictions() {
 }
 
 function renderPredictions(predictions) {
+    console.log(predictions);
+    console.log(typeof(predictions));
+
+    if (!Array.isArray(predictions)) {
+        console.error('Predictions is not an array:', predictions);
+        return;
+    }
+
     predictionsContainer.innerHTML = ''; // Clear previous predictions
 
     const row = document.createElement('div');
@@ -75,6 +83,7 @@ function renderPredictions(predictions) {
         row.appendChild(col);
     });
 }
+
 
 function loadingSpinner(div) {
     const spinner = document.createElement('div');
