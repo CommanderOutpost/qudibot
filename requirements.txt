@@ -6,3 +6,4 @@ pandas
 numpy
 yfinance
 plotly
+pandas_datareader
