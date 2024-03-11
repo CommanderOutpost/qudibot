@@ -1,0 +1,8 @@
+openai
+anthropic
+groq
+flask
+pandas
+numpy
+yfinance
+plotly
