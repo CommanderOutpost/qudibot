@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block script %}
+<script src="https://cdn.plot.ly/plotly-2.29.1.min.js" charset="utf-8" defer></script>
+<script src="{{ url_for('static', filename='stockGraph.js') }}" defer></script>
+
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <br><br>
+    <h2 class="h1 display-5">Fill in the details below</h2>
+</div>
+<div class="container">
+    <form id="trading-form" method="post">
+        <div class="mb-3">
+            <label for="stock" class="form-label"><strong>Stock Ticker:</strong></label>
+            <input name="stock" type="text" class="form-control" id="stock" placeholder="AAPL" required>
+        </div>
+        <div class="mb-3">
+            <label for="interval" class="form-label"><strong>Time Interval</strong></label>
+            <div class="row align-items-start">
+                <div class="mb-3 interval-div">
+                    <label for="start-date">Start:</label>
+                    <input class="form-control" type="date" name="start-date" id="start-date" required>
+                </div>
+                <div class="mb-3 interval-div">
+                    <label for="start-date">End:</label>
+                    <input class="form-control" type="date" name="end-date" id="end-date" required>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="strategy" class="form-label"><strong>Strategy:</strong></label>
+            <select class="form-select" id="strategy" name="strategy" aria-label="Default select example">
+                <option value="RSI" selected><strong>RSI (Relative Strength Index)</strong></option>
+                <option value="MAC"><strong>MAC (Moving Average Crossover)</strong></option>
+                <option value="BB"><strong>BBS (Bollinger Bands Strategy)</strong></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="balance" class="form-label"><strong>Initial balance:</strong></label>
+            <input name="balance" type="text" class="form-control" id="balance" required>
+        </div>
+        <div>
+            <input type="submit" class="btn btn-primary btn-lg" value="Start Trading">
+            <a href="{{ url_for('home.index')}}" class="btn btn-secondary btn-lg float-end">Go Back</a>
+        </div>
+    </form>
+
+    <div id="stock-graph"></div>
+</div>
+
+{% endblock %}

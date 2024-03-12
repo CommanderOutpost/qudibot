@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block script %}
+<script src="https://cdn.plot.ly/plotly-2.29.1.min.js" charset="utf-8" defer></script>
+<script src="{{ url_for('static', filename='stockGraph.js') }}" defer></script>
+
+{% endblock %}
+
+
+{% block content %}
+<div class="row home-row">
+    <div class="col-lg mb-2 mb-sm-0">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Real Time Trading</h5>
+                <p class="card-text">
+                    With supporting text below as a natural lead-in to additional content.
+                </p>
+                <a href="#" class="btn btn-primary">Go</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Historical Data</h5>
+                <p class="card-text">
+                    Test the bot with historical data.
+                </p>
+                <a href="{{ url_for('home.historical_data')}}" class="btn btn-primary">Go</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,4 +1,13 @@
-from flask import Blueprint, flash, g, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    get_flashed_messages,
+)
 from werkzeug.exceptions import abort
 
 from trading_app.auth import login_required
@@ -14,6 +23,16 @@ from trading_app.chat_ai import (
     predict_up_or_down_claude,
     predict_up_or_down_groq,
 )
+
+from trading_app.utils import add_trade_to_db, update_trade_columns, get_from_table
+
+from trading_app.trading_bot import (
+    mac_strategy_tradingbot,
+    bollinger_bands_strategy_tradingbot,
+    rsi_strategy_tradingbot,
+)
+
+from datetime import datetime
 
 bp = Blueprint("home", __name__)
 
@@ -34,12 +53,13 @@ def stock_graph():
         period = request.form["period"]
         interval = request.form["interval"]
         df = get_stock_data(stock, period, interval)
-        return redirect(url_for("home.index"))
+        # return redirect(url_for("home.index"))
     return render_template("quidbot/stock_graph.html")
 
 
 @bp.route("/predictions", methods=["GET", "POST"])
 def prediction():
+    url = request.url
     if request.method == "POST":
         stocks = request.form["stocks"]
         stocks = stocks.split(",")
@@ -70,10 +90,9 @@ def prediction():
         elif brain == "Claude":
             claude_api_key = api
             prediction = predict_up_or_down_claude(stocks, all_data, api)
-            
-        prediction = eval(prediction)
 
-        return jsonify({"predictions": prediction})
+        return jsonify(eval(prediction))
+
     return render_template("quidbot/prediction.html")
 
 
@@ -105,7 +124,7 @@ def setting():
         if not model.strip() or not api.strip():
             flash("Please fill in all fields")
             return redirect(prev_url)
-        
+
         # Check if setting already exists
         setting = db.execute(
             "SELECT * FROM api_key WHERE user_id = ?", (g.user["id"],)
@@ -144,3 +163,68 @@ def get_setting():
         return jsonify({"setting": {"brain": setting[0], "api": setting[1]}})
     else:
         return jsonify({"setting": {"brain": "", "api": ""}})
+
+
+@bp.route("/trading")
+def trading():
+    return render_template("quidbot/trading/trading.html")
+
+
+@bp.route("/trading/historical_data", methods=["GET", "POST"])
+def historical_data():
+    if request.method == "POST":
+        stock = request.form["stock"]
+        start_date = request.form["start-date"]
+        end_date = request.form["end-date"]
+        strategy = request.form["strategy"]
+        balance = request.form["balance"]
+
+        trade = {
+            "stock": stock,
+            "start_date": start_date,
+            "end_date": end_date,
+            "strategy": strategy,
+            "cash_balance": balance,
+            "user_id": g.user["id"],
+            "time_started": datetime.now(),
+            "time_ended": None,
+            "profit": 0,
+            "status": "ongoing",
+            "type": "historical",
+            "history": None,
+            "stock_balance": 0,
+            "portfolio_value": balance,
+        }
+
+        trade_db = add_trade_to_db(trade)
+
+        print(get_from_table("trade", {"id": trade_db}))
+
+        if strategy == "MAC":
+            trading_bot = mac_strategy_tradingbot.MACStrategyTradingBot(
+                trade["stock"],
+                float(trade["cash_balance"]),
+                1,
+                50,
+                200,
+                start_date,
+                end_date,
+            )
+            trades = trading_bot.run()
+
+        update_trade_columns(
+            trade_db,
+            {
+                "time_ended": datetime.now(),
+                "status": "completed",
+                "history": str(trades["history"]),
+                "cash_balance": trades["cash"],
+                "stock_balance": trades["stock_balance"],
+                "profit": float(trade["portfolio_value"]) - float(trades["portfolio_value"]),
+                "portfolio_value": trades["portfolio_value"],
+            },
+        )
+
+        return render_template("quidbot/trading/historical_data.html")
+
+    return render_template("quidbot/trading/historical_data.html")

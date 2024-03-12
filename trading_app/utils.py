@@ -4,6 +4,7 @@ import time
 import random
 import os
 import logging
+from trading_app.db import get_db
 
 # Set up logging
 logging.basicConfig(
@@ -74,3 +75,84 @@ def convert_timestamp_keys_to_string(input_dict):
             converted_dict = {}
 
     return input_dict
+
+
+def add_trade_to_db(trade):
+    db = get_db()
+    # cursor = db.cursor()
+
+    # Insert the new trade
+    db.execute(
+        """
+        INSERT INTO trade (stock, start_date, end_date, strategy, cash_balance, user_id, time_started, 
+        time_ended, profit, status, type, history, stock_balance, portfolio_value) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """,
+        (
+            trade["stock"],
+            trade["start_date"],
+            trade["end_date"],
+            trade["strategy"],
+            trade["cash_balance"],
+            trade["user_id"],
+            trade["time_started"],
+            trade["time_ended"],
+            trade["profit"],
+            trade["status"],
+            trade["type"],
+            trade["history"],
+            trade["stock_balance"],
+            trade["portfolio_value"],
+        ),
+    )
+    trade_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+    db.commit()
+
+    return trade_id
+
+
+def update_trade_columns(trade_id, column_values):
+    db = get_db()
+
+    # Update the specified columns for the trade with the given trade_id
+    for column_name, new_value in column_values.items():
+        db.execute(
+            f"UPDATE trade SET {column_name}=? WHERE id=?", (new_value, trade_id)
+        )
+
+    db.commit()
+
+
+def get_from_table(table_name, filters):
+    db = get_db()
+
+    # Construct the SQL query
+    query = f"SELECT * FROM {table_name}"
+    if filters:
+        conditions = []
+        values = []
+        for column, value in filters.items():
+            conditions.append(f"{column}=?")
+            values.append(value)
+        query += " WHERE " + " AND ".join(conditions)
+
+    # Execute the query
+    rows = db.execute(query, tuple(values)).fetchall()
+
+    # Convert rows to a list of dictionaries
+    result = []
+    for row in rows:
+        row_dict = dict(row)
+        result.append(row_dict)
+
+    return result
+
+
+# Function to clear all trades from the database
+def clear_trades():
+    db = get_db()
+
+    # Clear all trades from the database
+    db.execute("DELETE FROM trade")
+
+    db.commit()
