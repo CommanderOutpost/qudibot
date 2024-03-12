@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 
 {% block script %}
-<script src="https://cdn.plot.ly/plotly-2.29.1.min.js" charset="utf-8" defer></script>
-<script src="{{ url_for('static', filename='stockGraph.js') }}" defer></script>
+<script src="{{ url_for('static', filename='historicalDataTrading.js') }}" defer></script>
 
 {% endblock %}
 
@@ -34,9 +33,9 @@
         <div class="mb-3">
             <label for="strategy" class="form-label"><strong>Strategy:</strong></label>
             <select class="form-select" id="strategy" name="strategy" aria-label="Default select example">
-                <option value="RSI" selected><strong>RSI (Relative Strength Index)</strong></option>
-                <option value="MAC"><strong>MAC (Moving Average Crossover)</strong></option>
-                <option value="BB"><strong>BBS (Bollinger Bands Strategy)</strong></option>
+                <option value="RSI" disabled><strong>RSI (Relative Strength Index)</strong></option>
+                <option value="MAC" selected><strong>MAC (Moving Average Crossover)</strong></option>
+                <option value="BB" disabled><strong>BBS (Bollinger Bands Strategy)</strong></option>
             </select>
         </div>
         <div class="mb-3">
@@ -48,6 +47,12 @@
             <a href="{{ url_for('home.index')}}" class="btn btn-secondary btn-lg float-end">Go Back</a>
         </div>
     </form>
+
+    <div class="container">
+        <div class="row trades" id="trade-cards-container">
+           
+        </div>
+    </div>
 
     <div id="stock-graph"></div>
 </div>

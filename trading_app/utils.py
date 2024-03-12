@@ -149,10 +149,10 @@ def get_from_table(table_name, filters):
 
 
 # Function to clear all trades from the database
-def clear_trades():
+def clear_trades(user_id):
     db = get_db()
 
-    # Clear all trades from the database
-    db.execute("DELETE FROM trade")
+    # Clear trades from the database for the specified user_id
+    db.execute("DELETE FROM trade WHERE user_id=?", (user_id,))
 
     db.commit()

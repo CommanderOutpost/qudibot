@@ -24,7 +24,7 @@ from trading_app.chat_ai import (
     predict_up_or_down_groq,
 )
 
-from trading_app.utils import add_trade_to_db, update_trade_columns, get_from_table
+from trading_app.utils import add_trade_to_db, update_trade_columns, get_from_table, clear_trades
 
 from trading_app.trading_bot import (
     mac_strategy_tradingbot,
@@ -106,8 +106,6 @@ def get_stock_data_route():
         data = df.reset_index().to_dict("list")
         return jsonify(data)
     except Exception as e:
-        print("Error getting stock data")
-        flash("Error getting stock data")
         return jsonify({"error": str(e)})
 
 
@@ -220,7 +218,8 @@ def historical_data():
                 "history": str(trades["history"]),
                 "cash_balance": trades["cash"],
                 "stock_balance": trades["stock_balance"],
-                "profit": float(trade["portfolio_value"]) - float(trades["portfolio_value"]),
+                "profit": float(trades["portfolio_value"])
+                - float(trade["portfolio_value"]),
                 "portfolio_value": trades["portfolio_value"],
             },
         )
@@ -228,3 +227,24 @@ def historical_data():
         return render_template("quidbot/trading/historical_data.html")
 
     return render_template("quidbot/trading/historical_data.html")
+
+
+@bp.route("/get_trades")
+def get_trades_route():
+    try:
+        trades = get_from_table("trade", {"user_id": g.user["id"]})
+        return jsonify(trades)
+    except Exception as e:
+        print("Error getting trades")
+        flash("Error getting trades")
+        return jsonify({"error": str(e)})
+
+@bp.route("/clear_trades", methods=["DELETE"])
+def clear_trades_route():
+    try:
+        clear_trades(g.user["id"])
+        return jsonify({"message": "Trades cleared"})
+    except Exception as e:
+        print("Error clearing trades")
+        flash("Error clearing trades")
+        return jsonify({"error": str(e)})
