@@ -29,7 +29,7 @@ function createStockGraph(data, stock) {
     console.log(trace)
 
     const layout = {
-        title: `${stock} Live Share Price`,
+        title: `${stock.toUpperCase()} Live Share Price`,
         xaxis: {
             type: 'date',
             title: 'Date',
