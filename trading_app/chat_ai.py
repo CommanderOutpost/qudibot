@@ -34,7 +34,6 @@ def predict_up_or_down_openai(symbols, data, api):
         str: Prediction for each stock.
     """
     try:
-        
         openai_client = OpenAI(api_key=api)
 
         response = openai_client.chat.completions.create(
@@ -54,8 +53,9 @@ def predict_up_or_down_openai(symbols, data, api):
         # Extract the generated content from the API response
         generated_content = response.choices[0].message.content
         return generated_content
-    except OpenAIError as e:
-        return None
+    except Exception as e:
+        return {"error": str(e)}
+
 
 def predict_up_or_down_claude(symbols, data, api):
     """
@@ -68,21 +68,24 @@ def predict_up_or_down_claude(symbols, data, api):
     Returns:
         str: Prediction of whether the stock will go up or down.
     """
-    claude_client = anthropic.Client(api_key=api)
-    response = claude_client.messages.create(
-        max_tokens=1000,
-        stream=False,
-        model="claude-3-opus-20240229",
-        system=message,
-        messages=[
-            {
-                "role": "user",
-                "content": f"These are the stocks: {symbols}.\n This is the data for each stock {data}. Return the json.",
-            }
-        ],
-    )
+    try:
+        claude_client = anthropic.Client(api_key=api)
+        response = claude_client.messages.create(
+            max_tokens=1000,
+            stream=False,
+            model="claude-3-opus-20240229",
+            system=message,
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"These are the stocks: {symbols}.\n This is the data for each stock {data}. Return the json.",
+                }
+            ],
+        )
 
-    return response.content[0].text
+        return response.content[0].text
+    except Exception as e:
+        return {"error": str(e)}
 
 
 def predict_up_or_down_groq(symbols, data):

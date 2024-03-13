@@ -29,6 +29,10 @@ async function getPredictions() {
 
         if (response.ok) {
             const data = await response.json();
+            if (data.error) {
+                renderError("Ensure API key is set correctly")
+                return
+            }
             const predictions = data.predictions;
             renderPredictions(predictions);
             return predictions
@@ -43,7 +47,7 @@ async function getPredictions() {
 
 function renderPredictions(predictions) {
     console.log(predictions);
-    console.log(typeof(predictions));
+    console.log(typeof (predictions));
 
     if (!Array.isArray(predictions)) {
         console.error('Predictions is not an array:', predictions);
@@ -97,4 +101,14 @@ function loadingSpinner(div) {
 submitBtn.addEventListener('click', async () => {
     const spinner = loadingSpinner(predictionsContainer);
     await getPredictions();
+    spinner.remove();
 });
+
+function renderError(error) {
+    predictionsContainer.innerHTML = ""
+    predictionsContainer.classList.add('text-center')
+    const errorH = document.createElement('h3')
+    errorH.classList.add('h3')
+    errorH.textContent = error;
+    predictionsContainer.appendChild(errorH)
+}

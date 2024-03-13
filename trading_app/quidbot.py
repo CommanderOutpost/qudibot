@@ -24,7 +24,12 @@ from trading_app.chat_ai import (
     predict_up_or_down_groq,
 )
 
-from trading_app.utils import add_trade_to_db, update_trade_columns, get_from_table, clear_trades
+from trading_app.utils import (
+    add_trade_to_db,
+    update_trade_columns,
+    get_from_table,
+    clear_trades,
+)
 
 from trading_app.trading_bot import (
     mac_strategy_tradingbot,
@@ -57,41 +62,55 @@ def stock_graph():
     return render_template("quidbot/stock_graph.html")
 
 
+# flash function is used to display a message to the user.
+def flash_error(messge):
+    flash(messge)
+
+
 @bp.route("/predictions", methods=["GET", "POST"])
-def prediction():
+def prediction_route(flash_message=None):
+    db = get_db()
+
+    setting = db.execute(
+        "SELECT brain, api FROM api_key WHERE user_id = ?", (g.user["id"],)
+    ).fetchone()
+
     url = request.url
+    api = None
+    brain = None
+
+    if setting:
+        brain = setting[0]
+        api = setting[1]
+
+    if not api:
+        flash("Please set your API key in settings")
+
+    if not brain:
+        flash("Please set your model in settings")
+
     if request.method == "POST":
+        prediction = None
         stocks = request.form["stocks"]
         stocks = stocks.split(",")
         for i, stock in enumerate(stocks):
             stocks[i] = stock[:-1]
         # Get setting from db
         db = get_db()
-        setting = db.execute(
-            "SELECT brain, api FROM api_key WHERE user_id = ?", (g.user["id"],)
-        ).fetchone()
-
-        if setting:
-            brain = setting[0]
-            api = setting[1]
-
-        if not api:
-            flash("Please set your API key in settings")
-
-        if not brain:
-            flash("Please set your model in settings")
 
         all_data = gather_data(stocks)
 
         if brain == "GPT-4":
+            print("GPT-4", api)
             openai_api_key = api
-            prediction = predict_up_or_down_openai(stocks, all_data, api)
+            prediction = predict_up_or_down_openai(stocks, all_data, openai_api_key)
 
         elif brain == "Claude":
+            print("Claude")
             claude_api_key = api
             prediction = predict_up_or_down_claude(stocks, all_data, api)
 
-        return jsonify(eval(prediction))
+        return jsonify(prediction)
 
     return render_template("quidbot/prediction.html")
 
@@ -127,7 +146,6 @@ def setting():
         setting = db.execute(
             "SELECT * FROM api_key WHERE user_id = ?", (g.user["id"],)
         ).fetchone()
-        print(setting)
         if setting:
             print(
                 f"UPDATE query: UPDATE api_key SET brain = '{model}', api = '{api}' WHERE user_id = {g.user['id']}"
@@ -156,7 +174,6 @@ def get_setting():
     setting = db.execute(
         "SELECT brain, api FROM api_key WHERE user_id = ?", (g.user["id"],)
     ).fetchone()
-    print(setting)
     if setting:
         return jsonify({"setting": {"brain": setting[0], "api": setting[1]}})
     else:
@@ -195,8 +212,6 @@ def historical_data():
         }
 
         trade_db = add_trade_to_db(trade)
-
-        print(get_from_table("trade", {"id": trade_db}))
 
         if strategy == "MAC":
             trading_bot = mac_strategy_tradingbot.MACStrategyTradingBot(
@@ -239,6 +254,7 @@ def get_trades_route():
         flash("Error getting trades")
         return jsonify({"error": str(e)})
 
+
 @bp.route("/clear_trades", methods=["DELETE"])
 def clear_trades_route():
     try:
@@ -247,4 +263,18 @@ def clear_trades_route():
     except Exception as e:
         print("Error clearing trades")
         flash("Error clearing trades")
+        return jsonify({"error": str(e)})
+
+
+@bp.route("/delete_trade", methods=["DELETE"])
+def delete_trade_route():
+    try:
+        trade_id = request.args.get("trade_id")
+        db = get_db()
+        db.execute("DELETE FROM trade WHERE id = ?", (trade_id,))
+        db.commit()
+        return jsonify({"message": "Trade deleted"})
+    except Exception as e:
+        print("Error deleting trade")
+        flash("Error deleting trade")
         return jsonify({"error": str(e)})
