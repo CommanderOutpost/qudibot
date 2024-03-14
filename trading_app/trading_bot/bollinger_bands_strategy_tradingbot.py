@@ -27,6 +27,8 @@ class BollingerBandsStrategyTradingBot(tb.StockTradingBot):
         shares_amount,
         bollinger_window_length,
         bollinger_num_std_devs,
+        start_date,
+        end_date,
     ):
         super().__init__(symbol, initial_cash, shares_amount, start_date, end_date)
         self.bollinger_window_length = bollinger_window_length

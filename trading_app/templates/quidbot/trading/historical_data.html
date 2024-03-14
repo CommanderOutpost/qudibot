@@ -33,9 +33,9 @@
         <div class="mb-3">
             <label for="strategy" class="form-label"><strong>Strategy:</strong></label>
             <select class="form-select" id="strategy" name="strategy" aria-label="Default select example">
-                <option value="RSI" disabled><strong>RSI (Relative Strength Index)</strong></option>
+                <option value="RSI"><strong>RSI (Relative Strength Index)</strong></option>
                 <option value="MAC" selected><strong>MAC (Moving Average Crossover)</strong></option>
-                <option value="BB" disabled><strong>BBS (Bollinger Bands Strategy)</strong></option>
+                <option value="BBS"><strong>BBS (Bollinger Bands Strategy)</strong></option>
             </select>
         </div>
         <div class="mb-3">
@@ -50,7 +50,21 @@
 
     <div class="container">
         <div class="row trades" id="trade-cards-container">
-           
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="tradeHistoryModal" tabindex="-1" aria-labelledby="tradeHistoryModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tradeHistoryModalLabel">Trade History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                </div>
+            </div>
         </div>
     </div>
 

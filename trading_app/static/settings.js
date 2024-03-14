@@ -8,14 +8,15 @@ const getSettingFromServer = async () => {
     return data
 }
 // Add a click event listener
-gearIconButton.addEventListener('click', async () => {
-    const setting = await getSettingFromServer();
-    // Create the settings menu div
-    const settingsMenu = document.createElement('div');
-    settingsMenu.classList.add('card')
-    settingsMenu.classList.add('settings-menu');
-    // Add your HTML content for the settings menu here
-    settingsMenu.innerHTML = `
+if (gearIconButton) {
+    gearIconButton.addEventListener('click', async () => {
+        const setting = await getSettingFromServer();
+        // Create the settings menu div
+        const settingsMenu = document.createElement('div');
+        settingsMenu.classList.add('card')
+        settingsMenu.classList.add('settings-menu');
+        // Add your HTML content for the settings menu here
+        settingsMenu.innerHTML = `
         <div class="container">
             <h3>Settings</h3>
             <form method="post" action="/setting">
@@ -36,11 +37,12 @@ gearIconButton.addEventListener('click', async () => {
         </div>
     `;
 
-    // Create the background overlay div
-    const overlay = document.createElement('div');
-    overlay.classList.add('overlay');
+        // Create the background overlay div
+        const overlay = document.createElement('div');
+        overlay.classList.add('overlay');
 
-    // Append the settings menu and overlay to the body
-    document.body.appendChild(settingsMenu);
-    document.body.appendChild(overlay);
-});
+        // Append the settings menu and overlay to the body
+        document.body.appendChild(settingsMenu);
+        document.body.appendChild(overlay);
+    });
+}

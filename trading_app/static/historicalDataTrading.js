@@ -4,12 +4,13 @@ const trades_array = []
 function generateTradeCard(tradeData) {
   const cardHTML = `
       <div class="col-md-12">
-        <div class="card mb-3 position-relative">
+        <div class="card mb-3 position-relative trade-card" card-trade-id="${tradeData.id}" data-trade-id="${tradeData.real_id}">
           <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Delete Trade" data-trade-id="${tradeData.id}"></button>
           <div class="card-body">
             <h5 class="card-title">Trade ${tradeData.id}</h5>
             <p class="card-text">
               <strong>Stock:</strong> ${tradeData.stock}<br>
+              <strong>Strategy:</strong> ${tradeData.strategy}<br>
               <strong>Range:</strong> ${tradeData.range}<br>
               <strong>Start Time:</strong> ${tradeData.startTime}<br>
               <strong>End Time:</strong> ${tradeData.endTime}<br>
@@ -37,6 +38,8 @@ function renderTrades(trades) {
       id: index + 1,
       real_id: trade.id,
       stock: trade.stock,
+      strategy: trade.strategy,
+      history: trade.history,
       range: `${trade.start_date} - ${trade.end_date}`,
       startTime: trade.time_started,
       endTime: trade.time_ended,
@@ -85,7 +88,48 @@ function renderTrades(trades) {
       }
     });
   });
+
+  const tradeCards = document.querySelectorAll('.trade-card');
+  tradeCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const tradeId = card.getAttribute('card-trade-id');
+      openTradeModal(tradeId);
+    });
+  });
 }
+
+function openTradeModal(tradeID) {
+  const tradeHistory = trades_array[tradeID - 1].history;
+  const modalContent = document.querySelector('.modal-body');
+  modalContent.innerHTML = `
+    <div>
+      <h3>Trade History</h3>
+      <ul>
+        ${tradeHistory.map(trade => `
+          <li>
+            <strong>Operation:</strong> ${trade.operation}<br>
+            <strong>Price:</strong> ${trade.price}<br>
+            <strong>Amount:</strong> ${trade.amount}<br>
+            <strong>Timestamp:</strong> ${trade.timestamp}<br>
+            <strong>Insufficient Funds:</strong> ${trade.insufficent_funds}
+          </li> <br>
+        `).join('')}
+      </ul>
+    </div>
+  `;
+
+  // Show the modal
+  const modal = bootstrap.Modal.getInstance(document.getElementById('tradeHistoryModal'));
+  if (modal) {
+    modal.show();
+  } else {
+    // Create a new instance if it doesn't exist
+    const newModal = new bootstrap.Modal(document.getElementById('tradeHistoryModal'));
+    newModal.show();
+  }
+}
+
+
 
 async function fetchTrades() {
   try {

@@ -37,7 +37,7 @@ from trading_app.trading_bot import (
     rsi_strategy_tradingbot,
 )
 
-from datetime import datetime
+import datetime
 
 bp = Blueprint("home", __name__)
 
@@ -201,7 +201,7 @@ def historical_data():
             "strategy": strategy,
             "cash_balance": balance,
             "user_id": g.user["id"],
-            "time_started": datetime.now(),
+            "time_started": datetime.datetime.now(),
             "time_ended": None,
             "profit": 0,
             "status": "ongoing",
@@ -223,12 +223,38 @@ def historical_data():
                 start_date,
                 end_date,
             )
-            trades = trading_bot.run()
+
+        if strategy == "BBS":
+            trading_bot = (
+                bollinger_bands_strategy_tradingbot.BollingerBandsStrategyTradingBot(
+                    trade["stock"],
+                    float(trade["cash_balance"]),
+                    1,
+                    20,
+                    2,
+                    start_date,
+                    end_date,
+                )
+            )
+
+        if strategy == "RSI":
+            trading_bot = rsi_strategy_tradingbot.RSIStrategyTradingBot(
+                trade["stock"],
+                float(trade["cash_balance"]),
+                1,
+                14,
+                70,
+                30,
+                start_date,
+                end_date,
+            )
+
+        trades = trading_bot.run()
 
         update_trade_columns(
             trade_db,
             {
-                "time_ended": datetime.now(),
+                "time_ended": datetime.datetime.now(),
                 "status": "completed",
                 "history": str(trades["history"]),
                 "cash_balance": trades["cash"],
@@ -248,9 +274,11 @@ def historical_data():
 def get_trades_route():
     try:
         trades = get_from_table("trade", {"user_id": g.user["id"]})
+        for trade in trades:
+            trade["history"] = eval(trade["history"])
         return jsonify(trades)
     except Exception as e:
-        print("Error getting trades")
+        print(e)
         flash("Error getting trades")
         return jsonify({"error": str(e)})
 

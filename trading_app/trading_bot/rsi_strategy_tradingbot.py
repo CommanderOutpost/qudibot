@@ -34,6 +34,8 @@ class RSIStrategyTradingBot(tb.StockTradingBot):
             symbol,
             initial_cash,
             shares_amount,
+            start_date,
+            end_date,
         )
         self.rsi_window_length = rsi_window_length
         self.rsi_overbought_threshold = rsi_overbought_threshold
